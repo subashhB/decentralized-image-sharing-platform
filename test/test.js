@@ -36,7 +36,7 @@ contract('Deinsta', ([deployer, author, tipper]) => {
     })
     it('creates images', async()=>{
       assert.equal(imageCount, 1)
-      console.log(result.logs[0].args)
+      const event = result.logs[0].args
       assert.equal(event.id.toNumber(), imageCount.toNumber(), "Id is correct")
       assert.equal(event.hash, hash, "Hash is correct")
       assert.equal(event.description, "Image Description", "Description is correct")
