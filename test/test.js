@@ -42,6 +42,19 @@ contract('Deinsta', ([deployer, author, tipper]) => {
       assert.equal(event.description, "Image Description", "Description is correct")
       assert.equal(event.tipAmount, '0', "Tip Amount is correct")
       assert.equal(event.author, author, 'Author address is correct')
+
+      //Checking whether the image has hash or not
+      await deinsta.uploadImage('', "Image Description", {from: author}).should.be.rejected
+      //Checking for the blank desciption
+      await deinsta.uploadImage("Image Hash", "", {from: author}).should.be.rejected
+    })
+    it('list images', async ()=>{
+      const image = await deinsta.images(imageCount)
+      assert.equal(image.id.toNumber(), imageCount.toNumber(), "Id is correct")
+      assert.equal(image.hash, hash, "Hash is correct")
+      assert.equal(image.description, "Image Description", "Description is correct")
+      assert.equal(image.tipAmount, '0', "Tip Amount is correct")
+      assert.equal(image.author, author, 'Author address is correct')
     })
   })
 })

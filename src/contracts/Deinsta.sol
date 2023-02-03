@@ -11,7 +11,7 @@ contract Deinsta {
   struct Image{
     uint id;
     string hash;
-    string desciption;
+    string description;
     uint tipAmount;
     address payable author;
   }
