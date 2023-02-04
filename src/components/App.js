@@ -32,6 +32,10 @@ class App extends Component {
     const networkData = Deinsta.networks[networkId];
     if(networkData){
       const deinsta = web3.eth.Contract(Deinsta.abi, networkData.address)
+      this.setState({deinsta})
+      const imageCount = await deinsta.methods.imageCount().call()
+      this.setState({imageCount})
+      this.setState({loading: false})
     }else{
       window.alert('De-insta Contract is not deployed to the detected network')
     }
@@ -41,6 +45,9 @@ class App extends Component {
     super(props)
     this.state = {
       account: '',
+      deinsta: null,
+      images: [],
+      loading: true
     }
   }
 
