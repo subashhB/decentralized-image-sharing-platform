@@ -56,5 +56,37 @@ contract('Deinsta', ([deployer, author, tipper]) => {
       assert.equal(image.tipAmount, '0', "Tip Amount is correct")
       assert.equal(image.author, author, 'Author address is correct')
     })
+    it('allows the users to tip image', async()=>{
+      //Track the author balance before the purchase
+      let oldAuthorBalance
+      oldAuthorBalance = await web3.eth.getBalance(author)
+      oldAuthorBalance = new web3.utils.BN(oldAuthorBalance)
+
+      result = await deinsta.tipImageOwner(imageCount, {from: tipper, value: web3.utils.toWei('1', 'Ether')})
+
+      const event = result.logs[0].args
+      assert.equal(event.id.toNumber(),imageCount, 'Id is Correct')
+      assert.equal(event.hash, hash, 'Hash is correct')
+      assert.equal(event.description, "Image Description", "Description is correct")
+      assert.equal(event.tipAmount, '1000000000000000000', "Tip Amount is correct")
+      assert.equal(event.author, author, "Author address is correct")
+
+      //Check the Author Balance has been increased after tipping
+      let newAuthorBalance
+      newAuthorBalance = await web3.eth.getBalance(author)
+      newAuthorBalance = await web3.utils.BN(newAuthorBalance)
+
+      //Check the Balance of the tipper if it has been decreased
+      let tippedBalance
+      tippedBalance = await web3.utils.toWei('1','Ether')
+      tippedBalance = await web3.utils.BN(tippedBalance)
+
+      const expectedBalance = oldAuthorBalance.add(tippedBalance)
+
+      assert.equal(newAuthorBalance.toString(), expectedBalance.toString())
+
+      //Trying to tip an image that doesn't exist
+      await deinsta.tipImageOwner(99,{from: tipper, value: web3.utils.toWei('1','Ether')}).should.be.rejected
+    })
   })
 })
