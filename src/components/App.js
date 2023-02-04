@@ -24,8 +24,18 @@ class App extends Component {
   }
   async loadBlockChainData(){
     const web3 = await window.web3
+    //Load Accounts
     const accounts = await web3.eth.getAccounts()
     this.setState({account: accounts[0]})
+    //Network ID (Ganache = 5777)
+    const networkId = await web3.eth.net.getId();
+    const networkData = Deinsta.networks[networkId];
+    if(networkData){
+      const deinsta = web3.eth.Contract(Deinsta.abi, networkData.address)
+    }else{
+      window.alert('De-insta Contract is not deployed to the detected network')
+    }
+    
   }
   constructor(props) {
     super(props)
