@@ -6,6 +6,9 @@ import Deinsta from '../abis/Deinsta.json'
 import Navbar from './Navbar'
 import Main from './Main'
 
+//Declare IPFS
+const ipfsClient = require('ipfs-http-client')
+const ipfs = ipfsClient('https://localhost:5001/api/v0') //if left empty it will fill the default value
 
 class App extends Component {
   async componentWillMount(){
@@ -41,6 +44,37 @@ class App extends Component {
     }
     
   }
+
+  captureFile = (event) =>{
+    event.preventDefault()
+    //Reading the file (files[0]: the file in the html)
+    const file = event.target.files[0]
+    const reader = new window.FileReader()
+    reader.readAsArrayBuffer(file)
+
+    //Setting the file in the format that the IPFS accepts
+    reader.onloadend = () =>{
+      this.setState({buffer: Buffer(reader.result)})
+      console.log('buffer', this.state.buffer)
+    }
+  }
+  uploadImage = description =>{
+    console.log("Submitting file to ipfs....")
+    ipfs.add(this.state.buffer, (error, result)=>{
+      if(error){
+        console.log(error)
+        return
+      }
+      else{
+        this.setState({loading: true})
+        this.state.deinsta.methods.uploadImage(result[0], description).send({from: this.state.account}).on('transactionHash', (hash)=>{
+          this.setState({loading: false})
+        })
+        
+      }
+    })
+  }
+
   constructor(props) {
     super(props)
     this.state = {
@@ -58,7 +92,8 @@ class App extends Component {
         { this.state.loading
           ? <div id="loader" className="text-center mt-5"><p>Loading...</p></div>
           : <Main
-            // Code...
+              captureFile = {this.captureFile}
+              uploadImage = {this.uploadImage}
             />
         }
       </div>
